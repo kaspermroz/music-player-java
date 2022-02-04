@@ -11,7 +11,6 @@ import java.io.IOException;
 public class LocalPlayer implements MusicPlayer {
     FileInputStream fileInputStream;
     BufferedInputStream bufferedInputStream;
-    File myFile = null;
     long totalLength, pauseLength;
     Player player;
 

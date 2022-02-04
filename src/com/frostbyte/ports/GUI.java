@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 
 public class GUI implements UserInterface, ActionListener {
     //Creating Frame
@@ -156,8 +155,6 @@ public class GUI implements UserInterface, ActionListener {
                 player.Stop();
                 songName.setText("");
             }
-
         }
-
     }
 }
