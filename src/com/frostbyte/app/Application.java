@@ -1,13 +1,13 @@
 package com.frostbyte.app;
 
 public class Application {
-    private LocalPlayer player;
+    private UserInterface gui;
 
-    public Application(LocalPlayer player) {
-        this.player = player;
+    public Application(UserInterface gui) {
+        this.gui = gui;
     }
 
-    public void PlaySong() {}
-
-    public void Stop() {}
+    public void Run() {
+        this.gui.Init();
+    }
 }

@@ -1,6 +1,8 @@
-package com.frostbyte.app;
+package com.frostbyte.ports;
 
-import javazoom.jl.player.Player;
+
+import com.frostbyte.app.MusicPlayer;
+import com.frostbyte.app.UserInterface;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -12,7 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-public class LocalPlayer implements ActionListener {
+public class GUI implements UserInterface, ActionListener {
     //Creating Frame
     JFrame frame;
 
@@ -38,22 +40,20 @@ public class LocalPlayer implements ActionListener {
     File myFile = null;
     String filename, filePath;
     long totalLength, pauseLength;
-    Player player;
-    Thread playThread, resumeThread;
 
-    public LocalPlayer() {
+    private MusicPlayer player;
 
-        //Calling initUI() method to initiliaze UI
-        initUI();
-        //Calling addActionEvents() methods to add actions
-        addActionEvents();
-        //Calling Threads
-        playThread = new Thread(runnablePlay);
-        resumeThread = new Thread(runnableResume);
-
+    public GUI(MusicPlayer player) {
+        this.player = player;
     }
 
-    public void initUI() {
+    @Override
+    public void Init() {
+        this.initUI();
+        this.addActionEvents();
+    }
+
+    private void initUI() {
 
         //Setting songName Label to center
         songName = new JLabel("", SwingConstants.CENTER);
@@ -68,13 +68,11 @@ public class LocalPlayer implements ActionListener {
         //Creating icons for buttons
         iconPlay = new ImageIcon("icons/play-button.png");
         iconPause = new ImageIcon("icons/pause-button.png");
-        iconResume = new ImageIcon("icons/resume-button.png");
         iconStop = new ImageIcon("icons/stop-button.png");
 
         //Creating image buttons
         play = new JButton(iconPlay);
         pause = new JButton(iconPause);
-        resume = new JButton(iconResume);
         stop = new JButton(iconStop);
 
         //Setting Layout of PlayerPanel
@@ -85,18 +83,16 @@ public class LocalPlayer implements ActionListener {
         playerPanel.add(songName);
 
         //Setting Layout of ControlPanel
-        controlPanel.setLayout(new GridLayout(1, 4));
+        controlPanel.setLayout(new GridLayout(1, 3));
 
         //Addings components in ControlPanel
         controlPanel.add(play);
         controlPanel.add(pause);
-        controlPanel.add(resume);
         controlPanel.add(stop);
 
         //Setting buttons background color
         play.setBackground(Color.WHITE);
         pause.setBackground(Color.WHITE);
-        resume.setBackground(Color.WHITE);
         stop.setBackground(Color.WHITE);
 
         //Initialing the frame
@@ -118,12 +114,11 @@ public class LocalPlayer implements ActionListener {
 
     }
 
-    public void addActionEvents() {
+    private void addActionEvents() {
         //registering action listener to buttons
         select.addActionListener(this);
         play.addActionListener(this);
         pause.addActionListener(this);
-        resume.addActionListener(this);
         stop.addActionListener(this);
     }
 
@@ -143,74 +138,26 @@ public class LocalPlayer implements ActionListener {
             }
         }
         if (e.getSource().equals(play)) {
-            //starting play thread
             if (filename != null) {
-                playThread.start();
+                this.player.PlaySong(myFile);
                 songName.setText("Now playing : " + filename);
             } else {
                 songName.setText("No File was selected!");
             }
         }
         if (e.getSource().equals(pause)) {
-            //code for pause button
-            if (player != null && filename != null) {
-                try {
-                    pauseLength = fileInputStream.available();
-                    player.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+            if (filename != null) {
+                this.player.Pause();
             }
         }
 
-        if (e.getSource().equals(resume)) {
-            //starting resume thread
-            if (filename != null) {
-                resumeThread.start();
-            } else {
-                songName.setText("No File was selected!");
-            }
-        }
         if (e.getSource().equals(stop)) {
-            //code for stop button
             if (player != null) {
-                player.close();
+                player.Stop();
                 songName.setText("");
             }
 
         }
 
     }
-
-    Runnable runnablePlay = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                //code for play button
-                fileInputStream = new FileInputStream(myFile);
-                bufferedInputStream = new BufferedInputStream(fileInputStream);
-                player = new Player(bufferedInputStream);
-                totalLength = fileInputStream.available();
-                player.play();//starting music
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
-    Runnable runnableResume = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                //code for resume button
-                fileInputStream = new FileInputStream(myFile);
-                bufferedInputStream = new BufferedInputStream(fileInputStream);
-                player = new Player(bufferedInputStream);
-                fileInputStream.skip(totalLength - pauseLength);
-                player.play();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
 }
